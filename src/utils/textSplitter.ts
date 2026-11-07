@@ -7,7 +7,7 @@ export class TextSplitter {
   selector: string | Function;
   private originalHTML: Map<Element, string> = new Map();
 
-  constructor(target: string | Element | NodeListOf<Element> | Element[], vars?: { type?: string; linesClass?: string }) {
+  constructor(target: string | Element | NodeListOf<Element> | Element[] | (string | Element)[], vars?: { type?: string; linesClass?: string }) {
     const type = vars?.type || "chars,words,lines";
     const linesClass = vars?.linesClass || "split-line";
 
@@ -16,10 +16,16 @@ export class TextSplitter {
     if (typeof target === "string") {
       elements = Array.from(document.querySelectorAll(target));
     } else if (target instanceof NodeList) {
-      elements = Array.from(target);
+      elements = Array.from(target) as Element[];
     } else if (Array.isArray(target)) {
-      elements = target;
-    } else {
+      target.forEach((item) => {
+        if (typeof item === "string") {
+          elements.push(...Array.from(document.querySelectorAll(item)));
+        } else if (item instanceof Element) {
+          elements.push(item);
+        }
+      });
+    } else if (target instanceof Element) {
       elements = [target];
     }
 

@@ -1,8 +1,6 @@
-import { SplitText } from "gsap-trial/SplitText";
+import { TextSplitter as SplitText } from "../../utils/textSplitter";
 import gsap from "gsap";
 import { lenis } from "../Navbar";
-
-gsap.registerPlugin(SplitText);
 
 export function initialFX() {
   document.body.style.overflowY = "auto";
