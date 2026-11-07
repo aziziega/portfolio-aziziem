@@ -1,12 +1,7 @@
 import { PropsWithChildren } from "react";
 import "./styles/Landing.css";
-import { config } from "../config";
 
 const Landing = ({ children }: PropsWithChildren) => {
-  const nameParts = config.developer.fullName.split(" ");
-  const firstName = nameParts[0] || config.developer.name;
-  const lastName = nameParts.slice(1).join(" ") || "";
-
   return (
     <>
       <div className="landing-section" id="landingDiv">
@@ -14,32 +9,21 @@ const Landing = ({ children }: PropsWithChildren) => {
           <div className="landing-intro">
             <h2>Hello! I'm</h2>
             <h1>
-              {firstName.toUpperCase()}
-              {' '}
+              AZIZI
               <br />
-              {lastName && <span>{lastName.toUpperCase()}</span>}
+              <span>EGATRI M.</span>
             </h1>
           </div>
           <div className="landing-info">
-            <h3>An Developer</h3>
+            <h3>A Developer</h3>
             <h2 className="landing-info-h2">
-              <div className="landing-h2-1">FULLSTACK</div>
-              <div className="landing-h2-2">VIBE ENGINEER</div>
+              <div className="landing-h2-1">Full-Stack</div>
+              <div className="landing-h2-2">Vibe Engineer</div>
             </h2>
             <h2>
-              <div className="landing-h2-info">VIBE ENGINEER</div>
-              <div className="landing-h2-info-1">FULLSTACK</div>
+              <div className="landing-h2-info">Vibe Engineer</div>
+              <div className="landing-h2-info-1">Full-Stack</div>
             </h2>
-          </div>
-          {/* Mobile photo - shows only on mobile when 3D character is hidden */}
-          <div className="mobile-photo">
-            <img
-              src="/images/mypicnbg.png"
-              alt={config.developer.fullName}
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-            />
           </div>
         </div>
         {children}

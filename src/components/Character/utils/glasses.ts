@@ -56,15 +56,16 @@ export const createGlasses = (): THREE.Group => {
     hinge.position.set(side * (eyeDistance + rimRadius * 1.12), 0.02, -0.02);
     glasses.add(hinge);
 
-    // 4. Temple Arms (Gagang kacamata bertapak di atas lekukan daun telinga)
+    // 4. Temple Arms (Gagang kacamata dikeluarkan di luar kulit dan bertapak pas di atas lekukan daun telinga)
     const templeCurve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(side * (eyeDistance + rimRadius * 1.12), 0.02, -0.02),
-      new THREE.Vector3(side * 0.86, 0.05, -0.35),
-      new THREE.Vector3(side * 0.9, 0.09, -0.68),
-      new THREE.Vector3(side * 0.92, 0.11, -0.82),
-      new THREE.Vector3(side * 0.9, -0.06, -0.98),
+      new THREE.Vector3(side * (eyeDistance + rimRadius * 1.12), 0.02, -0.02), // Engsel depan frame
+      new THREE.Vector3(side * 0.93, 0.04, -0.18),                             // Melayang rapi di luar kulit pelipis depan
+      new THREE.Vector3(side * 1.01, 0.06, -0.36),                             // Menyusuri samping pelipis luar
+      new THREE.Vector3(side * 1.07, 0.08, -0.52),                             // Bertengger pas di atas lekukan daun telinga
+      new THREE.Vector3(side * 1.05, 0.01, -0.64),                             // Melengkung turun di belakang telinga
+      new THREE.Vector3(side * 1.02, -0.08, -0.74),                            // Ujung gagang kacamata
     ]);
-    const templeGeom = new THREE.TubeGeometry(templeCurve, 28, 0.018, 8, false);
+    const templeGeom = new THREE.TubeGeometry(templeCurve, 32, 0.018, 8, false);
     const temple = new THREE.Mesh(templeGeom, frameMaterial);
     glasses.add(temple);
 

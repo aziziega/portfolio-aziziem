@@ -44,7 +44,6 @@ const setCharacter = (
             setAllTimeline();
             character!.getObjectByName("footR")!.position.y = 3.36;
             character!.getObjectByName("footL")!.position.y = 3.36;
-            dracoLoader.dispose();
           },
           undefined,
           (error) => {

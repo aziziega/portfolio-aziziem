@@ -26,11 +26,31 @@ const Career = () => {
               <div className="career-info-in">
                 <div className="career-role">
                   <h4>{exp.position}</h4>
-                  <h5>{exp.company}</h5>
+                  {exp.url ? (
+                    <a
+                      href={exp.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="career-company-link"
+                      data-cursor="disable"
+                    >
+                      <h5>
+                        {exp.company}
+                        <span className="career-company-arrow">↗</span>
+                      </h5>
+                    </a>
+                  ) : (
+                    <h5>{exp.company}</h5>
+                  )}
                 </div>
                 <h3>{getDisplayYear(exp.period)}</h3>
               </div>
-              <p>{exp.description}</p>
+              <div className="career-info-desc">
+                {exp.location && (
+                  <span className="career-location">{exp.location}</span>
+                )}
+                <p>{exp.description}</p>
+              </div>
             </div>
           ))}
         </div>

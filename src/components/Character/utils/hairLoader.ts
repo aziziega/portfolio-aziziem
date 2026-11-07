@@ -1,9 +1,10 @@
 import * as THREE from "three";
 import { GLTFLoader, DRACOLoader } from "three-stdlib";
+import { sculptCommaHair, createCommaHairLock } from "./commaHair";
 
 /**
- * Loads a custom 3D hair model (e.g. comma hair GLB) and attaches it to the character head bone.
- * If the file is placed in /models/comma_hair.glb, it seamlessly replaces the default hair mesh.
+ * Loads a custom 3D hair model (e.g. comma hair GLB) or sculpts the native
+ * stylized Modern Korean Comma Hair directly on the character.
  */
 export const loadCustomHair = (
   headBone: THREE.Object3D,
@@ -34,13 +35,18 @@ export const loadCustomHair = (
       });
 
       headBone.add(hairModel);
-      console.log("Model rambut comma hair berhasil dimuat ke karakter!");
+      console.log("Model rambut comma hair (GLB) berhasil dimuat ke karakter!");
     },
     undefined,
     () => {
-      console.info(
-        "File /models/comma_hair.glb belum terdeteksi. Menggunakan rambut default hingga file 3D ditambahkan."
-      );
+      // 1. Sculpt native base hair in-place into Modern Comma Hair
+      sculptCommaHair(character);
+
+      // 2. Attach the signature 3D Comma Hair Lock directly to the head bone
+      const commaLock = createCommaHairLock();
+      headBone.add(commaLock);
+
+      console.log("Modern Comma Hair 3D berhasil diaplikasikan ke karakter!");
     }
   );
 };

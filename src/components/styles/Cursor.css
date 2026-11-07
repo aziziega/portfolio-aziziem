@@ -31,3 +31,10 @@
     --size: 0px;
   }
 }
+
+/* Hide custom cursor on touchscreen devices (mobile, iPad, tablets) */
+@media (hover: none) and (pointer: coarse) {
+  .cursor-main {
+    display: none !important;
+  }
+}

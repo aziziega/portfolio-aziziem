@@ -1,7 +1,8 @@
 .work-section h2 {
-  margin-top: 100px;
+  margin-top: 80px;
   font-size: 70px;
   font-weight: 500;
+  margin-bottom: 25px;
 }
 
 .work-section h2>span {
@@ -13,6 +14,7 @@
   height: 100vh;
   box-sizing: border-box;
   will-change: transform;
+  overflow: hidden;
 }
 
 .work-container {
@@ -26,22 +28,28 @@
 .work-flex {
   width: 100%;
   display: flex;
-  height: 100%;
-  margin-left: -80px;
+  flex: 1;
+  min-height: 0;
+  margin-left: 0;
   padding-right: 120px;
   position: relative;
+  margin-bottom: 35px;
 }
 
 .work-box {
-  padding: 80px;
+  padding: 60px 80px;
   display: flex;
   flex-direction: column;
   width: 600px;
   box-sizing: border-box;
-  border-right: 1px solid #363636;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
   flex-shrink: 0;
-  gap: 50px;
+  gap: 40px;
   justify-content: start;
+}
+
+.work-box:first-child {
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .work-flex .work-box:nth-child(even) {
@@ -53,15 +61,18 @@
   content: "";
   width: calc(50000vw);
   height: 1px;
-  background-color: #363636;
+  background-color: rgba(255, 255, 255, 0.2);
   position: absolute;
   left: 50%;
   top: 0;
   transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .work-flex::after {
-  top: 100%;
+  top: auto;
+  bottom: 0;
 }
 
 .work-title {
@@ -152,18 +163,18 @@
 
 @media only screen and (max-height: 900px) {
   .work-image img {
-    max-height: 250px;
+    max-height: 240px;
   }
 
   .work-box {
-    padding-top: 40px;
-    padding-bottom: 40px;
+    padding: 35px 60px;
+    gap: 25px;
   }
 
   .work-section h2 {
-    font-size: 60px;
-    margin-bottom: 30px;
-    margin-top: 70px;
+    font-size: 55px;
+    margin-bottom: 20px;
+    margin-top: 50px;
   }
 }
 
@@ -249,7 +260,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-right: none;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .see-all-works {
@@ -291,8 +302,8 @@
   box-shadow: 0 10px 30px rgba(194, 164, 255, 0.4);
 }
 
-/* Mobile: Stack work items vertically when GSAP pinning is disabled */
-@media only screen and (max-width: 768px) {
+/* Mobile & Tablet: Stack work items vertically when GSAP pinning is disabled */
+@media only screen and (max-width: 900px) {
   .work-section {
     height: auto;
     min-height: auto;
@@ -303,6 +314,7 @@
     margin-left: 0;
     padding-right: 0;
     gap: 0;
+    margin-bottom: 0;
   }
 
   .work-box {
@@ -310,8 +322,13 @@
     max-width: 100%;
     padding: 30px 15px;
     border-right: none;
-    border-bottom: 1px solid #363636;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     gap: 20px;
+  }
+
+  .work-box:first-child {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: none;
   }
 
   .work-flex .work-box:nth-child(even) {

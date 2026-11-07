@@ -10,28 +10,38 @@ const Loading = ({ percent }: { percent: number }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [clicked, setClicked] = useState(false);
 
-  if (percent >= 100) {
-    setTimeout(() => {
-      setLoaded(true);
-      setTimeout(() => {
-        setIsLoaded(true);
-      }, 1000);
-    }, 600);
-  }
+  useEffect(() => {
+    if (percent >= 100 && !loaded) {
+      const t1 = setTimeout(() => {
+        setLoaded(true);
+      }, 600);
+      return () => clearTimeout(t1);
+    }
+  }, [percent, loaded]);
 
   useEffect(() => {
-    import("./utils/initialFX").then((module) => {
-      if (isLoaded) {
-        setClicked(true);
-        setTimeout(() => {
+    if (loaded && !isLoaded) {
+      const t2 = setTimeout(() => {
+        setIsLoaded(true);
+      }, 1000);
+      return () => clearTimeout(t2);
+    }
+  }, [loaded, isLoaded]);
+
+  useEffect(() => {
+    if (isLoaded) {
+      setClicked(true);
+      const t3 = setTimeout(() => {
+        import("./utils/initialFX").then((module) => {
           if (module.initialFX) {
             module.initialFX();
           }
-          setIsLoading(false);
-        }, 900);
-      }
-    });
-  }, [isLoaded]);
+        });
+        setIsLoading(false);
+      }, 900);
+      return () => clearTimeout(t3);
+    }
+  }, [isLoaded, setIsLoading]);
 
   function handleMouseMove(e: React.MouseEvent<HTMLElement>) {
     const { currentTarget: target } = e;
@@ -62,8 +72,8 @@ const Loading = ({ percent }: { percent: number }) => {
       <div className="loading-screen">
         <div className="loading-marquee">
           <Marquee>
-            <span>&nbsp; AI Engineer &nbsp;</span> <span>&nbsp; Full Stack Developer &nbsp;</span>
-            <span>&nbsp; AI Engineer &nbsp;</span> <span>&nbsp; Full Stack Developer &nbsp;</span>
+            <span>&nbsp; Vibe Engineer &nbsp;</span> <span>&nbsp; Full Stack Developer &nbsp;</span>
+            <span>&nbsp; Vibe Engineer &nbsp;</span> <span>&nbsp; Full Stack Developer &nbsp;</span>
           </Marquee>
         </div>
         <div
@@ -94,41 +104,39 @@ export default Loading;
 
 export const setProgress = (setLoading: (value: number) => void) => {
   let percent: number = 0;
+  let isDone = false;
 
   let interval = setInterval(() => {
-    if (percent <= 50) {
-      let rand = Math.round(Math.random() * 5);
-      percent = percent + rand;
+    if (isDone) return;
+    if (percent < 55) {
+      let rand = Math.floor(Math.random() * 3) + 1;
+      percent = Math.min(55, percent + rand);
       setLoading(percent);
-    } else {
-      clearInterval(interval);
-      interval = setInterval(() => {
-        percent = percent + Math.round(Math.random());
-        setLoading(percent);
-        if (percent > 91) {
-          clearInterval(interval);
-        }
-      }, 2000);
+    } else if (percent < 85) {
+      percent += 1;
+      setLoading(percent);
     }
-  }, 100);
+  }, 60);
 
   function clear() {
     clearInterval(interval);
-    setLoading(100);
   }
 
   function loaded() {
+    isDone = true;
     return new Promise<number>((resolve) => {
       clearInterval(interval);
       interval = setInterval(() => {
         if (percent < 100) {
-          percent++;
+          const step = percent > 85 ? 1 : 2;
+          percent = Math.min(100, percent + step);
           setLoading(percent);
         } else {
-          resolve(percent);
+          setLoading(100);
           clearInterval(interval);
+          resolve(100);
         }
-      }, 2);
+      }, 20);
     });
   }
   return { loaded, percent, clear };

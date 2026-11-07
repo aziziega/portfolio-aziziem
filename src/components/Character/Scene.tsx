@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import setCharacter from "./utils/character";
 import setLighting from "./utils/lighting";
@@ -15,20 +15,30 @@ import { setProgress } from "../Loading";
 import createGlasses from "./utils/glasses";
 import createMacbook from "./utils/macbook";
 import loadCustomHair from "./utils/hairLoader";
+import { configurePantsMaterial, attachSockCuffs } from "./utils/socks";
+import setupInteractiveSmile, { MouthController } from "./utils/mouthController";
+import configureFaceMaterial from "./utils/lips";
 
 const Scene = () => {
   const canvasDiv = useRef<HTMLDivElement | null>(null);
   const hoverDivRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef(new THREE.Scene());
   const { setLoading } = useLoading();
 
-  const [character, setChar] = useState<THREE.Object3D | null>(null);
   useEffect(() => {
+    let isMounted = true;
+    let animId: number;
+    let characterModel: THREE.Object3D | null = null;
+    let mouthCtrl: MouthController | null = null;
+
     if (canvasDiv.current) {
+      // Pastikan membersihkan canvas lama jika ada (mencegah penumpukan canvas saat HMR / remount)
+      const existingCanvases = canvasDiv.current.querySelectorAll("canvas");
+      existingCanvases.forEach((c) => c.remove());
+
       let rect = canvasDiv.current.getBoundingClientRect();
       let container = { width: rect.width, height: rect.height };
       const aspect = container.width / container.height;
-      const scene = sceneRef.current;
+      const scene = new THREE.Scene();
 
       const renderer = new THREE.WebGLRenderer({
         alpha: true,
@@ -50,6 +60,7 @@ const Scene = () => {
       let headBone: THREE.Object3D | null = null;
       let screenLight: any | null = null;
       let mixer: THREE.AnimationMixer;
+      let hasMouseMoved = false;
 
       const clock = new THREE.Clock();
 
@@ -58,120 +69,130 @@ const Scene = () => {
       const { loadCharacter } = setCharacter(renderer, scene, camera);
 
       loadCharacter().then((gltf) => {
-        if (gltf) {
-          const animations = setAnimations(gltf);
-          hoverDivRef.current && animations.hover(gltf, hoverDivRef.current);
-          mixer = animations.mixer;
-          let character = gltf.scene;
-          setChar(character);
-          scene.add(character);
+        // Guard: jika komponen sudah di-unmount saat model selesai di-load, batalkan penambahan ke scene
+        if (!isMounted || !gltf) return;
 
-          // Ubah baju menjadi warna hitam elegan
-          const shirt =
-            character.getObjectByName("BODYSHIRT") ||
-            character.getObjectByName("BODY.SHIRT");
-          if (shirt && (shirt as THREE.Mesh).isMesh) {
-            const shirtMesh = shirt as THREE.Mesh;
-            shirtMesh.material = (
-              shirtMesh.material as THREE.MeshStandardMaterial
-            ).clone();
-            (shirtMesh.material as THREE.MeshStandardMaterial).color.set(
-              "#141416"
-            );
-            (shirtMesh.material as THREE.MeshStandardMaterial).roughness = 0.65;
-          }
+        const animations = setAnimations(gltf);
+        hoverDivRef.current && animations.hover(gltf, hoverDivRef.current);
+        mouthCtrl = setupInteractiveSmile(gltf.scene, hoverDivRef.current);
+        mixer = animations.mixer;
+        let character = gltf.scene;
+        characterModel = character;
+        scene.add(character);
 
-          // Celana Pendek Hitam + Kulit Kaki + Kaus Kaki Putih (Opsi 2)
-          const pant = character.getObjectByName("Pant");
-          if (pant && (pant as THREE.Mesh).isMesh) {
-            const pantMesh = pant as THREE.Mesh;
-            pantMesh.material = (
-              pantMesh.material as THREE.MeshStandardMaterial
-            ).clone();
-            const mat = pantMesh.material as THREE.MeshStandardMaterial;
-            mat.vertexColors = true;
-            mat.color.setRGB(1, 1, 1);
-            mat.roughness = 0.65;
-            mat.needsUpdate = true;
-
-            const geometry = pantMesh.geometry;
-            const position = geometry.attributes.position;
-            const count = position.count;
-            const colors = new Float32Array(count * 3);
-
-            const colorShorts = new THREE.Color("#141416"); // Celana pendek hitam
-            const colorSkin = new THREE.Color(0.8, 0.8, 0.8); // Kulit kaki serasi dengan karakter
-            const colorSocks = new THREE.Color("#f0f0f4");  // Kaus kaki putih
-
-            for (let i = 0; i < count; i++) {
-              const y = position.getY(i);
-              let c = colorSocks;
-              if (y >= 4.2) {
-                c = colorShorts;
-              } else if (y >= 2.5) {
-                c = colorSkin;
-              } else {
-                c = colorSocks;
-              }
-              colors[i * 3] = c.r;
-              colors[i * 3 + 1] = c.g;
-              colors[i * 3 + 2] = c.b;
-            }
-
-            geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-            if (geometry.attributes.color) {
-              geometry.attributes.color.needsUpdate = true;
-            }
-          }
-
-          // Sembunyikan monitor desktop PC lama, keyboard lama, dan floating screenlight lama
-          character.traverse((child: any) => {
-            if (
-              child.name === "Keyboard" ||
-              child.name.includes("KEYS") ||
-              child.name === "Plane004" ||
-              child.name === "Plane.004" ||
-              child.name === "screenlight"
-            ) {
-              child.visible = false;
-            }
-          });
-
-          // Tambahkan 3D MacBook Pro di atas meja
-          const macbook = createMacbook();
-          macbook.position.set(0.08, 9.09, 3.65);
-          character.add(macbook);
-
-          headBone =
-            character.getObjectByName("spine006") ||
-            character.getObjectByName("spine.006") ||
-            null;
-          if (headBone) {
-            const glasses = createGlasses();
-            headBone.add(glasses);
-            loadCustomHair(headBone, character);
-          }
-          screenLight = character.getObjectByName("screenlight") || null;
-          progress.loaded().then(() => {
-            setTimeout(() => {
-              light.turnOnLights();
-              animations.startIntro();
-            }, 2500);
-          });
-          window.addEventListener("resize", () =>
-            handleResize(renderer, camera, canvasDiv, character)
+        // Ubah baju menjadi warna hitam elegan
+        const shirt =
+          character.getObjectByName("BODYSHIRT") ||
+          character.getObjectByName("BODY.SHIRT");
+        if (shirt && (shirt as THREE.Mesh).isMesh) {
+          const shirtMesh = shirt as THREE.Mesh;
+          shirtMesh.material = (
+            shirtMesh.material as THREE.MeshStandardMaterial
+          ).clone();
+          (shirtMesh.material as THREE.MeshStandardMaterial).color.set(
+            "#141416"
           );
+          (shirtMesh.material as THREE.MeshStandardMaterial).roughness = 0.65;
         }
+
+        // Warna Kulit Karakter (Opsi 1: Sawo Matang Natural / Warm Tan Indonesian Tone)
+        const skinColor = new THREE.Color("#c48958");
+
+        // Konfigurasi Material Wajah & Bibir Kemerahan Alami (Opsi A via Shader Injection)
+        const face =
+          character.getObjectByName("Plane.007") ||
+          character.getObjectByName("Plane007");
+        if (face && (face as THREE.Mesh).isMesh) {
+          configureFaceMaterial(face as THREE.Mesh, skinColor, {
+            lipColor: "#b85c54", // Tone 1: Natural Warm Rosy Reddish
+            creaseColor: "#7e3832", // Garis belahan bibir berdimensi
+            intensity: 0.85,
+            roughness: 0.40, // Sedikit lebih lembap alami dari kulit wajah
+          });
+        }
+
+        // Bagian Kulit Lainnya (Telinga, Leher, Tangan)
+        const otherSkinParts = [
+          character.getObjectByName("Ear.001") ||
+            character.getObjectByName("Ear001"),
+          character.getObjectByName("Neck"),
+          character.getObjectByName("Hand"),
+        ];
+
+        otherSkinParts.forEach((part) => {
+          if (part && (part as THREE.Mesh).isMesh) {
+            const mesh = part as THREE.Mesh;
+            mesh.material = (
+              mesh.material as THREE.MeshStandardMaterial
+            ).clone();
+            const mat = mesh.material as THREE.MeshStandardMaterial;
+            mat.color.copy(skinColor);
+            mat.roughness = 0.55;
+          }
+        });
+
+        // Celana Pendek Hitam + Kulit Kaki Sawo Matang + Kaus Kaki Putih Realistis
+        const pant = character.getObjectByName("Pant");
+        if (pant && (pant as THREE.Mesh).isMesh) {
+          configurePantsMaterial(pant as THREE.Mesh, skinColor);
+        }
+        // Pasang kerah lipatan kaos kaki 3D timbul pada tulang betis
+        attachSockCuffs(character);
+
+        // Sembunyikan monitor desktop PC lama, keyboard lama, dan floating screenlight lama
+        character.traverse((child: any) => {
+          if (
+            child.name === "Keyboard" ||
+            child.name.includes("KEYS") ||
+            child.name === "Plane004" ||
+            child.name === "Plane.004" ||
+            child.name === "screenlight"
+          ) {
+            child.visible = false;
+          }
+        });
+
+        // Tambahkan 3D MacBook Pro di atas meja
+        const macbook = createMacbook();
+        macbook.position.set(0.08, 9.09, 3.65);
+        character.add(macbook);
+
+        headBone =
+          character.getObjectByName("spine006") ||
+          character.getObjectByName("spine.006") ||
+          null;
+        if (headBone) {
+          headBone.rotation.set(-0.26, 0, 0);
+          const glasses = createGlasses();
+          headBone.add(glasses);
+          loadCustomHair(headBone, character);
+        }
+        screenLight = character.getObjectByName("screenlight") || null;
+        progress.loaded().then(() => {
+          setTimeout(() => {
+            if (!isMounted) return;
+            light.turnOnLights();
+            animations.startIntro();
+          }, 2500);
+        });
       });
+
+      const onResize = () => {
+        if (!isMounted || !characterModel) return;
+        handleResize(renderer, camera, canvasDiv, characterModel);
+      };
+      window.addEventListener("resize", onResize);
 
       let mouse = { x: 0, y: 0 },
         interpolation = { x: 0.1, y: 0.2 };
 
       const onMouseMove = (event: MouseEvent) => {
+        hasMouseMoved = true;
         handleMouseMove(event, (x, y) => (mouse = { x, y }));
       };
       let debounce: number | undefined;
       const onTouchStart = (event: TouchEvent) => {
+        hasMouseMoved = true;
         const element = event.target as HTMLElement;
         debounce = setTimeout(() => {
           element?.addEventListener("touchmove", (e: TouchEvent) =>
@@ -187,17 +208,20 @@ const Scene = () => {
         });
       };
 
-      document.addEventListener("mousemove", (event) => {
-        onMouseMove(event);
-      });
+      document.addEventListener("mousemove", onMouseMove);
       const landingDiv = document.getElementById("landingDiv");
       if (landingDiv) {
         landingDiv.addEventListener("touchstart", onTouchStart);
         landingDiv.addEventListener("touchend", onTouchEnd);
       }
       const animate = () => {
-        requestAnimationFrame(animate);
-        if (headBone) {
+        if (!isMounted) return;
+        animId = requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+        if (mixer) {
+          mixer.update(delta);
+        }
+        if (headBone && hasMouseMoved) {
           handleHeadRotation(
             headBone,
             mouse.x,
@@ -206,29 +230,30 @@ const Scene = () => {
             interpolation.y,
             THREE.MathUtils.lerp
           );
-          light.setPointLight(screenLight);
         }
-        const delta = clock.getDelta();
-        if (mixer) {
-          mixer.update(delta);
+        if (screenLight) {
+          light.setPointLight(screenLight);
         }
         renderer.render(scene, camera);
       };
       animate();
+
       return () => {
+        isMounted = false;
+        mouthCtrl?.cleanup();
+        progress.clear();
+        cancelAnimationFrame(animId);
         clearTimeout(debounce);
         scene.clear();
         renderer.dispose();
-        window.removeEventListener("resize", () =>
-          handleResize(renderer, camera, canvasDiv, character!)
-        );
-        if (canvasDiv.current) {
-          canvasDiv.current.removeChild(renderer.domElement);
-        }
+        window.removeEventListener("resize", onResize);
+        document.removeEventListener("mousemove", onMouseMove);
         if (landingDiv) {
-          document.removeEventListener("mousemove", onMouseMove);
           landingDiv.removeEventListener("touchstart", onTouchStart);
           landingDiv.removeEventListener("touchend", onTouchEnd);
+        }
+        if (canvasDiv.current && renderer.domElement.parentNode === canvasDiv.current) {
+          canvasDiv.current.removeChild(renderer.domElement);
         }
       };
     }

@@ -53,8 +53,7 @@ export default function setSplitText() {
       title.split?.revert();
     }
     title.split = new TextSplitter(title, {
-      type: "chars,lines",
-      linesClass: "split-line",
+      type: "chars",
     });
     title.anim = gsap.fromTo(
       title.split.chars,

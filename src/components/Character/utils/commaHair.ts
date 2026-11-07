@@ -1,151 +1,93 @@
 import * as THREE from "three";
 
 /**
- * Creates a tapered hair strand geometry along a 3D CatmullRom spline.
- * Tapers from rootRadius at the base to tipRadius at the end, with a slight ribbon flattening.
+ * Sculpts the character's base hair mesh vertices in-place into a clean,
+ * modern Side-Part / Two-Block style (belahan rapi mengekspos dahi kanan,
+ * poni kiri jatuh alami dan bersih tanpa jambul melengkung yang menonjol).
  */
-const createTaperedStrand = (
-  points: number[][],
-  rootRadius: number,
-  tipRadius: number,
-  tubularSegments: number = 24,
-  radialSegments: number = 10
-): THREE.BufferGeometry => {
-  const curve = new THREE.CatmullRomCurve3(
-    points.map((p) => new THREE.Vector3(p[0], p[1], p[2]))
-  );
-  const geom = new THREE.TubeGeometry(
-    curve,
-    tubularSegments,
-    rootRadius,
-    radialSegments,
-    false
-  );
+export const sculptCommaHair = (character: THREE.Object3D) => {
+  const hairMesh = character.getObjectByName("hair") as THREE.Mesh | null;
+  if (!hairMesh || !hairMesh.geometry) return;
+
+  const geom = hairMesh.geometry;
   const pos = geom.attributes.position;
-  const curvePoints = curve.getPoints(tubularSegments);
+  if (!pos) return;
 
-  for (let i = 0; i <= tubularSegments; i++) {
-    const t = i / tubularSegments;
-    const factor = 1 - t + t * (tipRadius / rootRadius);
-    const center = curvePoints[i];
-
-    for (let j = 0; j <= radialSegments; j++) {
-      const idx = i * (radialSegments + 1) + j;
-      const vx = pos.getX(idx);
-      const vy = pos.getY(idx);
-      const vz = pos.getZ(idx);
-
-      // Slight compression along local Y for natural hair-ribbon volume
-      pos.setXYZ(
-        idx,
-        center.x + (vx - center.x) * factor,
-        center.y + (vy - center.y) * factor * 0.72,
-        center.z + (vz - center.z) * factor
-      );
-    }
+  // Pastikan tidak ada mesh jambul / lock terpisah yang menempel
+  const existingLock = hairMesh.getObjectByName("VolumetricCommaLock");
+  if (existingLock) {
+    hairMesh.remove(existingLock);
   }
+
+  // Simpan posisi original agar operasi sculpting selalu idempoten (tahan HMR/remount)
+  if (!geom.userData.originalPositions) {
+    geom.userData.originalPositions = pos.clone();
+  }
+  const origPos = geom.userData.originalPositions as THREE.BufferAttribute;
+
+  // Sempurnakan material rambut: hitam pekat natural dengan specular sheen lembut
+  if (hairMesh.material) {
+    const mat = hairMesh.material as THREE.MeshStandardMaterial;
+    mat.color.set("#0e0d10");
+    mat.roughness = 0.48;
+    mat.metalness = 0.18;
+  }
+
+  const partingX = -0.016;
+
+  for (let i = 0; i < origPos.count; i++) {
+    let x = origPos.getX(i);
+    let y = origPos.getY(i);
+    let z = origPos.getZ(i);
+
+    // Target area poni depan dan dahi dalam ruang lokal hair mesh
+    if (z > 0.035 && y < 0.10) {
+      if (x < partingX) {
+        // 1. SISI BELAHAN (Swept side fringe - karakter kanan / viewer kiri)
+        const dist = Math.abs(x - partingX);
+        if (dist < 0.065) {
+          const t = Math.cos((dist / 0.065) * Math.PI * 0.5);
+          if (y < 0.065) {
+            const lift = Math.max(0, 1 - (y - 0.038) / 0.027);
+            y += t * lift * 0.036;
+            z -= t * 0.015;
+          }
+          x -= t * 0.008;
+        }
+      } else {
+        // 2. SISI KIRI (Poni natural jatuh bersih membingkai alis kiri - tanpa jambul)
+        const dist = x - partingX;
+
+        // A. Root volume halus pada puncak belahan rambut
+        if (dist < 0.045 && y > 0.055) {
+          const rootFactor = Math.sin((dist / 0.045) * Math.PI);
+          y += rootFactor * 0.014;
+          z += rootFactor * 0.010;
+        }
+
+        // B. Aliran poni alami membingkai dahi kiri secara rapi dan rata
+        if (x >= -0.005 && x <= 0.070 && y < 0.070) {
+          const drapeFactor = Math.max(0, 1 - Math.abs(x - 0.035) / 0.040);
+          y -= drapeFactor * 0.006;
+          z += drapeFactor * 0.006;
+        }
+      }
+    }
+
+    pos.setXYZ(i, x, y, z);
+  }
+
+  pos.needsUpdate = true;
   geom.computeVertexNormals();
-  return geom;
 };
 
 /**
- * Generates the iconic modern Comma Hair style (belahan samping dengan poni melengkung huruf "C" / koma).
- * Perfectly calibrated to match the character's headBone (spine006) coordinate space.
+ * Hook kompatibilitas untuk hairLoader (mengembalikan group kosong tanpa jambul).
  */
-export const createCommaHair = (): THREE.Group => {
-  const hairGroup = new THREE.Group();
-  hairGroup.name = "CharacterCommaHair";
-
-  // Material matching the existing dark stylized hair texture
-  const hairMaterial = new THREE.MeshStandardMaterial({
-    color: 0x0a0a0c,
-    roughness: 0.55,
-    metalness: 0.12,
-  });
-
-  const strandsData = [
-    // 1. Helai Utama Poni Koma (Outer primary curve hooking inwards across forehead)
-    {
-      points: [
-        [-0.04, 1.95, 1.05],
-        [0.2, 1.84, 1.16],
-        [0.38, 1.64, 1.22],
-        [0.34, 1.44, 1.25],
-        [0.18, 1.38, 1.22],
-        [0.08, 1.44, 1.18],
-      ],
-      rootRadius: 0.08,
-      tipRadius: 0.015,
-    },
-    // 2. Helai Dalam Poni Koma (Inner layered volume for depth & shine)
-    {
-      points: [
-        [-0.08, 1.92, 1.07],
-        [0.14, 1.8, 1.18],
-        [0.3, 1.62, 1.24],
-        [0.26, 1.46, 1.25],
-        [0.14, 1.41, 1.21],
-      ],
-      rootRadius: 0.07,
-      tipRadius: 0.014,
-    },
-    // 3. Aksen Atas Lengkungan Koma (Upper fringe accent)
-    {
-      points: [
-        [0.02, 1.9, 1.1],
-        [0.24, 1.74, 1.2],
-        [0.32, 1.54, 1.24],
-        [0.2, 1.44, 1.22],
-      ],
-      rootRadius: 0.065,
-      tipRadius: 0.012,
-    },
-    // 4. Belahan Kiri (Secondary natural side-sweep on the opposite side of the part)
-    {
-      points: [
-        [-0.1, 1.95, 1.05],
-        [-0.26, 1.82, 1.16],
-        [-0.42, 1.64, 1.21],
-        [-0.48, 1.46, 1.17],
-      ],
-      rootRadius: 0.078,
-      tipRadius: 0.016,
-    },
-    // 5. Belahan Kiri Lapisan Atas (Upper left sweep layer)
-    {
-      points: [
-        [-0.14, 1.96, 1.07],
-        [-0.32, 1.84, 1.16],
-        [-0.48, 1.68, 1.18],
-      ],
-      rootRadius: 0.065,
-      tipRadius: 0.014,
-    },
-    // 6. Volume Belahan Rambut Atas (Parting line root lift at crown)
-    {
-      points: [
-        [-0.06, 2.02, 0.96],
-        [-0.04, 1.98, 1.07],
-        [0.08, 1.9, 1.13],
-      ],
-      rootRadius: 0.07,
-      tipRadius: 0.02,
-    },
-  ];
-
-  strandsData.forEach((strand) => {
-    const geom = createTaperedStrand(
-      strand.points,
-      strand.rootRadius,
-      strand.tipRadius
-    );
-    const mesh = new THREE.Mesh(geom, hairMaterial);
-    mesh.castShadow = false;
-    mesh.receiveShadow = false;
-    hairGroup.add(mesh);
-  });
-
-  return hairGroup;
+export const createCommaHairLock = (): THREE.Group => {
+  const lockGroup = new THREE.Group();
+  lockGroup.name = "CommaHairLock";
+  return lockGroup;
 };
 
-export default createCommaHair;
+export default sculptCommaHair;

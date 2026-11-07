@@ -1,12 +1,12 @@
 # 🚀 3D Developer Portfolio Website (React + TypeScript + Three.js)
 
-[![3D portfolio preview (click to watch video)](./Screenshot_2026-04-08_22-10-00.png)](./video.mp4)
+[![3D portfolio preview](./preview.png)](https://github.com/aziziega)
 
 A modern, high-performance **3D developer portfolio website** built with **React**, **TypeScript**, **Three.js**, **GSAP**, and **WebGL**.
 
 If you’re a developer looking for a **portfolio template** that feels premium, interactive, and memorable—this repo is for you.
 
-> Live preview: https://www.redoyanulhaque.me/
+> Portfolio of **Azizi Egatri Mu'thi** — Full-Stack Vibe Engineer & AI Developer.
 
 ---
 

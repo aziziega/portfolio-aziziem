@@ -47,22 +47,52 @@ export class TextSplitter {
   }
 
   private splitChars(element: Element) {
-    const text = element.textContent || "";
-    const chars = text.split("");
-    
-    element.innerHTML = chars
-      .map((char) => {
-        if (char === " ") {
-          return '<span class="split-char"> </span>';
+    if (element.children.length > 0) {
+      const splitTextNode = (node: Node) => {
+        if (node.nodeType === 3) {
+          const text = node.textContent || "";
+          const frag = document.createDocumentFragment();
+          for (const char of text) {
+            if (char === " ") {
+              const span = document.createElement("span");
+              span.className = "split-char";
+              span.innerHTML = "&nbsp;";
+              frag.appendChild(span);
+            } else if (char === "\n" || char === "\r" || char === "\t") {
+              // skip extra whitespace
+            } else {
+              const span = document.createElement("span");
+              span.className = "split-char";
+              span.textContent = char;
+              this.chars.push(span);
+              frag.appendChild(span);
+            }
+          }
+          node.parentNode?.replaceChild(frag, node);
+        } else if (node.nodeType === 1) {
+          Array.from(node.childNodes).forEach(splitTextNode);
         }
-        if (char === "\n") {
-          return "<br>";
-        }
-        return `<span class="split-char">${char}</span>`;
-      })
-      .join("");
+      };
 
-    this.chars.push(...Array.from(element.querySelectorAll(".split-char")));
+      Array.from(element.childNodes).forEach(splitTextNode);
+    } else {
+      const text = element.textContent || "";
+      const chars = text.split("");
+
+      element.innerHTML = chars
+        .map((char) => {
+          if (char === " ") {
+            return '<span class="split-char"> </span>';
+          }
+          if (char === "\n") {
+            return "<br>";
+          }
+          return `<span class="split-char">${char}</span>`;
+        })
+        .join("");
+
+      this.chars.push(...Array.from(element.querySelectorAll(".split-char")));
+    }
   }
 
   private splitWords(element: Element) {
