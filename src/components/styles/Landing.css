@@ -178,6 +178,10 @@
   font-family: "Geist", sans-serif;
 }
 
+.landing-intro h1 br {
+  display: none;
+}
+
 .landing-info {
   position: absolute;
   right: 50%;

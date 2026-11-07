@@ -1,6 +1,8 @@
-import { TextSplitter as SplitText } from "../../utils/textSplitter";
+import { SplitText } from "gsap/SplitText";
 import gsap from "gsap";
 import { lenis } from "../Navbar";
+
+gsap.registerPlugin(SplitText);
 
 export function initialFX() {
   document.body.style.overflowY = "auto";
@@ -41,8 +43,10 @@ export function initialFX() {
   const TextProps = { type: "chars,lines", linesClass: "split-h2" };
 
   const landingText2 = new SplitText(".landing-h2-info", TextProps);
+  const landingText4 = new SplitText(".landing-h2-1", TextProps);
+
   gsap.fromTo(
-    landingText2.chars,
+    [...landingText2.chars, ...landingText4.chars],
     { opacity: 0, y: 80, filter: "blur(5px)" },
     {
       opacity: 1,
@@ -78,13 +82,10 @@ export function initialFX() {
   );
 
   const landingText3 = new SplitText(".landing-h2-info-1", TextProps);
-  const landingText4 = new SplitText(".landing-h2-1", TextProps);
   const landingText5 = new SplitText(".landing-h2-2", TextProps);
 
-  gsap.set([landingText3.chars, landingText5.chars], { opacity: 0, y: 80 });
-
-  LoopText(landingText2, landingText3);
   LoopText(landingText4, landingText5);
+  LoopText(landingText2, landingText3);
 }
 
 function LoopText(Text1: SplitText, Text2: SplitText) {
@@ -100,31 +101,33 @@ function LoopText(Text1: SplitText, Text2: SplitText) {
       duration: 1.2,
       ease: "power3.inOut",
       y: 0,
-      stagger: 0.1,
+      stagger: 0.08,
       delay: delay,
     },
     0
   )
     .fromTo(
       Text1.chars,
-      { y: 80 },
+      { opacity: 0, y: 80 },
       {
+        opacity: 1,
         duration: 1.2,
         ease: "power3.inOut",
         y: 0,
-        stagger: 0.1,
+        stagger: 0.08,
         delay: delay2,
       },
       1
     )
     .fromTo(
       Text1.chars,
-      { y: 0 },
+      { opacity: 1, y: 0 },
       {
+        opacity: 0,
         y: -80,
         duration: 1.2,
         ease: "power3.inOut",
-        stagger: 0.1,
+        stagger: 0.08,
         delay: delay,
       },
       0
@@ -132,10 +135,11 @@ function LoopText(Text1: SplitText, Text2: SplitText) {
     .to(
       Text2.chars,
       {
+        opacity: 0,
         y: -80,
         duration: 1.2,
         ease: "power3.inOut",
-        stagger: 0.1,
+        stagger: 0.08,
         delay: delay2,
       },
       1
