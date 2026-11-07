@@ -91,7 +91,6 @@ export const config = {
         github: "https://github.com/aziziega",
         linkedin: "https://linkedin.com/in/aziziegatrim",
         twitter: "https://x.com/AziZiega",
-        facebook: "https://www.facebook.com/redoyanulhaque.hacker.official",
         instagram: "https://www.instagram.com/azizi.ega"
     },
     skills: {
