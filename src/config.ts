@@ -44,7 +44,7 @@ export const config = {
             id: 1,
             title: "LineUp Gym",
             category: "Sports Venue & Gym CRM",
-            technologies: "Next.js 14, TypeScript, Supabase, TanStack Query, Base UI, TailwindCSS",
+            technologies: "Next.js, TypeScript, Supabase, TanStack Query, Base UI, TailwindCSS",
             image: "/images/projects/lineupgym.png",
             description: "Full-stack multi-tenant sports venue & gym management SaaS. Features real-time member check-in, class bookings, billing automation, PT cycle evaluations, and official PDF reporting.",
             link: "https://lineup-gym.com"
