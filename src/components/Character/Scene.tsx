@@ -260,14 +260,16 @@ const Scene = () => {
   }, []);
 
   return (
-    <>
-      <div className="character-container">
-        <div className="character-model" ref={canvasDiv}>
-          <div className="character-rim"></div>
-          <div className="character-hover" ref={hoverDivRef}></div>
-        </div>
+    <div className="character-container">
+      <div className="character-model" ref={canvasDiv}>
+        <div className="character-rim"></div>
+        <div
+          className="character-hover"
+          ref={hoverDivRef}
+          data-cursor="disable"
+        ></div>
       </div>
-    </>
+    </div>
   );
 };
 

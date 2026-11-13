@@ -6,11 +6,14 @@ import {
 } from "react-icons/fa6";
 import "./styles/SocialIcons.css";
 import { TbNotes } from "react-icons/tb";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import HoverLinks from "./HoverLinks";
 import { config } from "../config";
+import { TerminalModal } from "./TerminalModal";
 
 const SocialIcons = () => {
+  const [isTerminalOpen, setIsTerminalOpen] = useState(false);
+
   useEffect(() => {
     const social = document.getElementById("social") as HTMLElement;
 
@@ -81,12 +84,27 @@ const SocialIcons = () => {
           </a>
         </span>
       </div>
-      <a className="resume-button" href="#">
+      <a
+        className="resume-button"
+        href="/CV-Azizi%20Egatri%20Mu'thi.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+        download="CV-Azizi-Egatri-Muthi.pdf"
+        onClick={(e) => {
+          e.preventDefault();
+          setIsTerminalOpen(true);
+        }}
+        title="Open Developer Resume & Terminal"
+      >
         <HoverLinks text="RESUME" />
         <span>
           <TbNotes />
         </span>
       </a>
+      <TerminalModal
+        isOpen={isTerminalOpen}
+        onClose={() => setIsTerminalOpen(false)}
+      />
     </div>
   );
 };

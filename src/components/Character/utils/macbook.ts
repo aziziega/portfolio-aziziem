@@ -358,6 +358,7 @@ export const createMacbook = (): THREE.Group => {
 
   // Soft natural glow light cast from the screen onto the keyboard and character
   const screenLight = new THREE.PointLight(0xa5c4ff, 1.8, 7, 2);
+  screenLight.name = "macbookScreenLight";
   screenLight.position.set(0, lidHeight / 2, -0.4);
   lid.add(screenLight);
 
