@@ -130,6 +130,10 @@
   transform: translate(2px, -2px);
 }
 
+.career-company-link:hover .career-company-arrow.is-down {
+  transform: translateY(3px);
+}
+
 .career-timeline {
   position: absolute;
   top: -50px;

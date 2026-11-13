@@ -26,7 +26,7 @@ export const config = {
         {
             position: "Full-Stack Developer",
             company: "Freelance & Projects",
-            url: "https://www.aziziem.xyz/#work",
+            url: "#work",
             period: "2026 - Present",
             location: "Remote • Work From Anywhere",
             description: "Built complete web applications from frontend to backend. Developed responsive UIs, RESTful APIs, and database solutions for various clients and projects."
