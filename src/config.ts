@@ -102,7 +102,7 @@ export const config = {
             tools: ["Next.js", "React", "Node.js", "TypeScript", "PostgreSQL", "TailwindCSS", "Supabase", "Git", "Github"]
         },
         design: {
-            title: "Vibe Engineer",
+            title: "VIBE ENGINEER",
             description: "Proof of Concept & Rapid Prototyping",
             details: "Accelerating ideas from 0 to 1 using agentic workflows and cutting-edge AI tooling. Specializing in autonomous agents, rapid experimentation, and building functional MVPs in record time.",
             tools: ["Antigravity IDE", "AGY CLI", "Claude Code", "Hermes Agent", "AI Agents"]
