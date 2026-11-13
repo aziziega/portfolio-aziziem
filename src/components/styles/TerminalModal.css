@@ -9,6 +9,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
+  overscroll-behavior: contain;
   animation: terminalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -115,6 +116,7 @@
   flex: 1;
   padding: 18px 22px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   font-family: "Fira Code", "SF Mono", Menlo, Consolas, monospace;
   font-size: 13px;
   line-height: 1.6;

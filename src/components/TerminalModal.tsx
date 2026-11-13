@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import "./styles/TerminalModal.css";
 import { FiDownload, FiExternalLink, FiTerminal, FiX, FiMinimize2, FiMaximize2 } from "react-icons/fi";
+import { lenis } from "./Navbar";
 
 interface TerminalModalProps {
   isOpen: boolean;
@@ -130,6 +131,21 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [history]);
 
+  useEffect(() => {
+    if (isOpen) {
+      lenis?.stop();
+      document.body.style.overflow = "hidden";
+    } else {
+      lenis?.start();
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      lenis?.start();
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   const handleCommand = (e: React.FormEvent) => {
     e.preventDefault();
     const cmd = inputVal.trim().toLowerCase();
@@ -223,8 +239,18 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="terminal-overlay" onClick={onClose}>
-      <div className="terminal-window" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="terminal-overlay"
+      onClick={onClose}
+      data-lenis-prevent="true"
+      onWheel={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+    >
+      <div
+        className="terminal-window"
+        onClick={(e) => e.stopPropagation()}
+        data-lenis-prevent="true"
+      >
         {/* macOS Title Bar */}
         <div className="terminal-header">
           <div className="terminal-traffic-lights">
@@ -246,7 +272,13 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
         </div>
 
         {/* Terminal Body */}
-        <div className="terminal-body" onClick={() => inputRef.current?.focus()}>
+        <div
+          className="terminal-body"
+          onClick={() => inputRef.current?.focus()}
+          data-lenis-prevent="true"
+          onWheel={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+        >
           <div className="terminal-banner">
             Welcome to Azizi's Developer Terminal & Resume Console [v2.4.0]
             <br />
