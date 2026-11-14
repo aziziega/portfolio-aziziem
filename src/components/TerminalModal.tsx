@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import "./styles/TerminalModal.css";
 import { FiDownload, FiExternalLink, FiTerminal, FiX, FiMinimize2, FiMaximize2 } from "react-icons/fi";
 import { lenis } from "./Navbar";
+import { soundFx } from "../utils/soundEffects";
 
 interface TerminalModalProps {
   isOpen: boolean;
@@ -105,6 +106,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
           timer = setTimeout(res, i === 0 ? 300 : 600);
         });
         if (isCancelled) break;
+        soundFx.playKeystroke();
         setHistory((prev) => [...prev, initialLines[i]]);
       }
       setIsTypingInitial(false);
@@ -115,6 +117,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        soundFx.playClose();
         onClose();
       }
     };
@@ -148,6 +151,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
 
   const handleCommand = (e: React.FormEvent) => {
     e.preventDefault();
+    soundFx.playClick(1.2);
     const cmd = inputVal.trim().toLowerCase();
     if (!cmd) return;
 
@@ -238,10 +242,15 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
 
   if (!isOpen) return null;
 
+  const handleClose = () => {
+    soundFx.playClose();
+    onClose();
+  };
+
   return createPortal(
     <div
       className="terminal-overlay"
-      onClick={onClose}
+      onClick={handleClose}
       data-lenis-prevent="true"
       onWheel={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
@@ -254,13 +263,24 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
         {/* macOS Title Bar */}
         <div className="terminal-header">
           <div className="terminal-traffic-lights">
-            <button className="traffic-btn close" onClick={onClose} title="Close (ESC)">
+            <button className="traffic-btn close" onClick={handleClose} title="Close (ESC)">
               <FiX />
             </button>
-            <button className="traffic-btn minimize" onClick={() => setHistory([])} title="Clear Screen">
+            <button
+              className="traffic-btn minimize"
+              onClick={() => {
+                soundFx.playClick(0.9);
+                setHistory([]);
+              }}
+              title="Clear Screen"
+            >
               <FiMinimize2 />
             </button>
-            <button className="traffic-btn maximize" title="Terminal Active">
+            <button
+              className="traffic-btn maximize"
+              onClick={() => soundFx.playClick(1.1)}
+              title="Terminal Active"
+            >
               <FiMaximize2 />
             </button>
           </div>
@@ -310,7 +330,10 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
                 ref={inputRef}
                 type="text"
                 value={inputVal}
-                onChange={(e) => setInputVal(e.target.value)}
+                onChange={(e) => {
+                  setInputVal(e.target.value);
+                  soundFx.playKeystroke();
+                }}
                 className="terminal-input"
                 autoFocus
                 spellCheck={false}

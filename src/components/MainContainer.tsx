@@ -10,6 +10,7 @@ import WhatIDo from "./WhatIDo";
 import Work from "./Work";
 import TechStackNew from "./TechStackNew";
 import setSplitText from "./utils/splitText";
+import "../utils/soundEffects";
 
 const MainContainer = ({ children }: PropsWithChildren) => {
   useEffect(() => {

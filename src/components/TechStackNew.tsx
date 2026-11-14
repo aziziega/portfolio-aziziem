@@ -1,4 +1,5 @@
 import "./styles/TechStackNew.css";
+import { soundFx } from "../utils/soundEffects";
 
 interface TechItem {
   name: string;
@@ -78,6 +79,7 @@ const TechStackNew = () => {
                   className="techstack-item"
                   title={tech.name}
                   data-cursor="disable"
+                  onClick={() => soundFx.playClick(1.05)}
                 >
                   <img src={tech.icon} alt={tech.name} loading="lazy" decoding="async" />
                   <span>{tech.name}</span>
@@ -85,6 +87,48 @@ const TechStackNew = () => {
               ))}
             </div>
           ))}
+        </div>
+
+        {/* GitHub Contribution Snake - Hardware Chassis (Option A) */}
+        <div className="techstack-snake-container">
+          <a
+            href="https://github.com/aziziega"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="snake-chassis"
+            title="Explore @aziziega on GitHub"
+            data-cursor="disable"
+          >
+            <div className="snake-chassis-header">
+              <div className="snake-chassis-label">
+                <span className="chassis-dot"></span>
+                <span>GITHUB_CONTRIBUTIONS // 2025-2026</span>
+              </div>
+              <div className="snake-chassis-link">
+                <span>github.com/aziziega</span>
+                <span className="chassis-arrow">↗</span>
+              </div>
+            </div>
+
+            <div className="snake-chassis-canvas">
+              <picture>
+                <source
+                  media="(prefers-color-scheme: dark)"
+                  srcSet="https://raw.githubusercontent.com/aziziega/aziziega/output/github-contribution-grid-snake-dark.svg"
+                />
+                <source
+                  media="(prefers-color-scheme: light)"
+                  srcSet="https://raw.githubusercontent.com/aziziega/aziziega/output/github-contribution-grid-snake.svg"
+                />
+                <img
+                  alt="github contribution grid snake animation"
+                  src="https://raw.githubusercontent.com/aziziega/aziziega/output/github-contribution-grid-snake-dark.svg"
+                  className="snake-image"
+                  loading="lazy"
+                />
+              </picture>
+            </div>
+          </a>
         </div>
       </div>
     </div>

@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import HoverLinks from "./HoverLinks";
 import { config } from "../config";
 import { TerminalModal } from "./TerminalModal";
+import { soundFx } from "../utils/soundEffects";
 
 const SocialIcons = () => {
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
@@ -92,6 +93,7 @@ const SocialIcons = () => {
         download="CV-Azizi-Egatri-Muthi.pdf"
         onClick={(e) => {
           e.preventDefault();
+          soundFx.playPop();
           setIsTerminalOpen(true);
         }}
         title="Open Developer Resume & Terminal"

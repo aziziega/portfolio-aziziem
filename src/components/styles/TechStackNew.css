@@ -70,6 +70,7 @@
   max-width: 1000px;
   margin: 0 auto;
   padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .techstack-content h2 {
@@ -238,3 +239,141 @@
     margin-top: 3px;
   }
 }
+
+/* GitHub Contribution Snake - Hardware Chassis (Option A) */
+.techstack-snake-container {
+  margin-top: 48px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.snake-chassis {
+  width: 100%;
+  max-width: 860px;
+  box-sizing: border-box;
+  background: #0d0c14;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-decoration: none;
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.7);
+  transition: border-color 0.25s ease, transform 0.25s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.snake-chassis,
+.snake-chassis * {
+  box-sizing: border-box;
+}
+
+.snake-chassis:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.snake-chassis-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.snake-chassis-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Fira Code", monospace, "SF Mono", Consolas;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  color: #71768c;
+  font-weight: 500;
+}
+
+.chassis-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #34d399;
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+.snake-chassis-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Fira Code", monospace, "SF Mono", Consolas;
+  font-size: 11px;
+  color: #888d9f;
+  transition: color 0.2s ease;
+}
+
+.snake-chassis:hover .snake-chassis-link {
+  color: #ffffff;
+}
+
+.chassis-arrow {
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.snake-chassis:hover .chassis-arrow {
+  transform: translate(2px, -2px);
+}
+
+.snake-chassis-canvas {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  background: #08070d;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 12px 14px;
+  overflow: hidden;
+}
+
+.snake-chassis-canvas picture {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+}
+
+.snake-image {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+@media screen and (max-width: 768px) {
+  .techstack-snake-container {
+    margin-top: 36px;
+  }
+  .snake-chassis {
+    padding: 12px 14px;
+    gap: 10px;
+    border-radius: 10px;
+  }
+  .snake-chassis-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .snake-chassis-canvas {
+    padding: 8px 10px;
+  }
+}
+

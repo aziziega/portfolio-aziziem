@@ -48,7 +48,7 @@ export const config = {
             technologies: "Next.js, TypeScript, Supabase, TanStack Query, Base UI, TailwindCSS",
             image: "/images/projects/lineupgym.png",
             description: "Full-stack multi-tenant sports venue & gym management SaaS. Features real-time member check-in, class bookings, billing automation, PT cycle evaluations, and official PDF reporting.",
-            link: "https://lineup-gym.com"
+            link: "https://lineupgym.com"
         },
         {
             id: 2,
@@ -75,7 +75,7 @@ export const config = {
             technologies: "Next.js, React, Supabase, PostgreSQL, TailwindCSS, Framer Motion",
             image: "/images/projects/ipmkukar.png",
             description: "Official web portal and content management system for Kutai Kartanegara Student Association in Yogyakarta. Centralizes community news, event galleries, and online member registrations.",
-            link: "https://ipmkukar.com"
+            link: "https://ipmkukarjogja.com"
         },
         {
             id: 5,
